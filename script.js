@@ -1,47 +1,50 @@
-class Board{
-    constructor(dim=8){
-        this.board=[Array(dim),Array(dim)];
-    }
-}
 class Node{
-    constructor(data){
+    constructor(data,depth=0,parent=null){
+        this.parent=parent;
         this.data=data;
-        this.child=null;
+        this.nextArr=null;
+        this.depth=depth;
     }
 }
-class BTree{
-    constructor(parent){
-        this.root=this.buildTree(parent);
+function buildBTree(node,count){
+    //create children of current node
+    node.nextArr=createMoves(node,count);
+    let childs=node.nextArr;
+    if(count>3){
+        return;
     }
-    buildTree(parent){
-        let root=new Node(parent);
-        root.child=this.createChildren(parent);
-        let nextArr=root.child;
-        for(let j=0;j<nextArr.length;j++){
-            nextArr[j].child=this.createChildren(nextArr[j].data);
-            for(let i=0;i<nextArr[j].child.length;i++){
-                nextArr[j].child[i].child=this.createChildren(nextArr[j].child[i].data);
-            }
-        }
-        return root;
+    count+=1;
+    //traverse every child of the current node
+    for(let i=0;i<childs.length;i++){
+        buildBTree(childs[i],count);
     }
-    createChildren(parent){
-        let chidren=[];
-        let square=[];
-        let temp;
-        let add=[[2,1],[2,-1],[-2,1],[-2,-1],[1,2],[1,-2],[-1,2],[-1,-2]];
-        for(let i=0;i<8;i++){
-            if((parent[0]+add[i][0]>0 && parent[0]+add[i][0]<9)&&(parent[0]+add[i][1]>0 && parent[0]+add[i][1]<9)){
-                square[0]=parent[0]+add[i][0];
-                square[1]=parent[0]+add[i][1];
-                temp=new Node(square);
-                chidren.push(temp);
-                square=[];
-            }
-        }
-        return chidren;
-    }
+    return node;
 }
-let parent=[4,4];
-let tree=new BTree(parent);
-console.log(tree,tree.root);
+function createMoves(root,count){
+    let parent=root;
+    let chidren=[];
+    let square=[];
+    let add=[[2,1],[2,-1],[-2,1],[-2,-1],[1,2],[1,-2],[-1,2],[-1,-2]];
+    for(let i=0;i<8;i++){
+        if((parent.data[0]+add[i][0]>0 && parent.data[0]+add[i][0]<9)
+            &&(parent.data[1]+add[i][1]>0 && parent.data[1]+add[i][1]<9)){
+            square[0]=parent.data[0]+add[i][0];
+            square[1]=parent.data[1]+add[i][1];
+            
+            temp=new Node(square,count,parent);
+            chidren.push(temp);
+            if(square[0]==dist[0] && square[1]==dist[1]){
+                paths.push(temp);
+            }
+            square=[];
+        }
+    }
+    return chidren;
+}
+let paths=[];
+let dist=[1,2];
+let root=new Node([1,1]);
+console.log(buildBTree(root,1));
+console.log("possible nodes:",paths);
+
+
